@@ -10,13 +10,13 @@ export const Navbar = () => {
 		await actions.logOut();
 		navigate('/login');
 	};
-
+	console.log("user en el store", store.user);
 	return (
 		<nav className="navbar navbar-light bg-light">
 			<div className="container d-flex justify-content-between align-items-center">
 				<Link to="/">
 					<span className="navbar-brand mb-0 h1">
-						{store.isAuthenticated ? "Welcome!" : "Registrate gratis!"}
+						{store.isAuthenticated ? `Welcome user number ${store.user}`: "Registrate gratis!"}
 					</span>
 				</Link>
 				<div className="d-flex">

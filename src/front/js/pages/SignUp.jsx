@@ -1,24 +1,36 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Context } from "../store/appContext";
 import { useNavigate } from "react-router-dom";
 
 export const SignUp = () => {
-    const { actions } = useContext(Context);
+    const { actions, store } = useContext(Context);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (store.error) {
+            setError(store.error);
+        }else{
+            setError(null)
+        }
+        return () => setError(null);
+    }, [store.error]);
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
-        const success = await actions.Signup({ email, password });
+        const result = await actions.Signup({ email, password });
 
-        if (success) {
-            navigate("/login"); 
+        console.log("Resultado del registro:", result);
+
+        if (result.success) {
+            navigate("/login");
         } else {
-            setError("Error al registrarse. Inténtalo de nuevo.");
+            setError(result.msg);
         }
     };
 

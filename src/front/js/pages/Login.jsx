@@ -14,12 +14,12 @@ export const Login = () => {
         e.preventDefault();
         setError(null);
 
-        const success = await actions.login(email, password);
+        const response = await actions.login(email, password);
 
-        if (success) {
+        if (response.success) {
             navigate("/private");
         } else {
-            setError("Credenciales inválidas. Inténtalo de nuevo.");
+            setError(response.msg);
         }
     };
 

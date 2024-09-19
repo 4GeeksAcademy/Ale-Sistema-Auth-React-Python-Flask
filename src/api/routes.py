@@ -17,39 +17,61 @@ CORS(api)
 def signup_user():
     email = request.json.get('email', None)
     password = request.json.get('password', None)
+
     if not email or not password:
-        return jsonify({'success':False, 'msg': 'Todos los campos son necesarios'})
+        return jsonify({'success':False, 
+                        'msg': 'Todos los campos son obligatorios'})
     user_exist = User.query.filter_by(email=email).first()
+
     if user_exist:
-        return jsonify({'success':False,'msg':'el email ya está registrado'}),400
+        return jsonify({'success':False,
+                        'msg':'Este usuario ya está registrado'}),400
     
     new_user= User(email=email, password=password, is_active=True)
+
     db.session.add(new_user)
     db.session.commit()
     access_token = create_access_token(identity=new_user.id)
-    return jsonify({'success':True,'msg': f'Ha sido registrado correctamente','token': access_token,'user':new_user.serialize()}), 200
+    return jsonify({'success':True,
+                    'msg': 'Ha sido registrado correctamente',
+                    'token': access_token,'user':new_user.serialize()}), 200
    
 @api.route('/login', methods=['POST'])
 def login():
-    email = request.json.get('email', None)
-    password = request.json.get('password', None)
-    user = User.query.filter_by(email=email, password=password).first()
+    try:
+        email = request.json.get('email')
+        password = request.json.get('password')
 
-    if user:
-        if password:
-            access_token = create_access_token(identity=user.id)
-            return jsonify({'success':True,'msg': f'Se ha iniciado sesión correctamente','token': access_token,'user':user.serialize()}), 200
-        return jsonify({'success': False, 'msg': 'La combinacion usuario/contraseña no es valida'}), 400
-    return jsonify({'success': False, 'msg': 'El correo electronico no tiene una cuenta asociada'}), 404
+        if not email or not password:
+            return jsonify({'success': False, 'msg': 'Por favor, proporciona correo y contraseña.'}), 400
+
+        user = User.query.filter_by(email=email).first()
+
+        if not user or user.password != password:
+            return jsonify({'success': False, 'msg': 'Usuario o contraseña incorrectos.'}), 401
+
+        access_token = create_access_token(identity=user.id)
+        return jsonify({
+            'success': True,
+            'msg': 'Inicio de sesión exitoso.',
+            'token': access_token,
+            'user': user.serialize()
+        }), 200
+
+    except Exception as e:
+        print(f"Error en login: {str(e)}")  
+        return jsonify({'success': False, 'msg': 'Ocurrió un error interno, por favor intenta de nuevo.'}), 500
+
 
 @api.route('/private', methods=['GET'])
 @jwt_required()
 def page_private():
-    user_id= get_jwt_identity
+    user_id= get_jwt_identity()
     user = User.query.get(user_id)
+
     if user:
-        return jsonify({'success': True, 'msg': 'Has logrado entrar a una página privada'})
-    return jsonify({'success': False, 'msg': 'No estás logeado'})
+        return jsonify({'success': True, 'msg': 'Has logrado entrar a una página privada'}), 200
+    return jsonify({'success': False, 'msg': 'No estás logeado'}), 400
 
 @api.route('/token', methods=['GET'])
 @jwt_required()

@@ -4,7 +4,8 @@ const getState = ({ getStore, getActions, setStore }) => {
             token: localStorage.getItem('token') || null, 
             user: null,
             message: null,
-            isAuthenticated: !!localStorage.getItem('token') // true si hay un token
+            isAuthenticated: !!localStorage.getItem('token'),
+            error: null  
         },
         actions: {
             Signup: async (formData) => {
@@ -19,13 +20,15 @@ const getState = ({ getStore, getActions, setStore }) => {
 
                     if (response.ok) {
                         const data = await response.json();
-                        setStore({ token: data.token, isAuthenticated: true });
+                        setStore({ token: data.token, isAuthenticated: true, error: null });
                         localStorage.setItem('token', data.token);
-                        return data;
+                        console.log('esta es la data ---> ', data)
+                        return { success: true };
                     } else {
                         const error = await response.json();
+                        setStore({ error: error.msg });
                         console.error("Error en el registro:", error);
-                        return error;
+                        return {success: false, error: error.msg};
                     }
                 } catch (error) {
                     console.error('Error en el registro:', error);
@@ -44,17 +47,18 @@ const getState = ({ getStore, getActions, setStore }) => {
 
                     if (response.ok) {
                         const data = await response.json();
-                        setStore({ token: data.token, isAuthenticated: true });
+                        setStore({user: data.user, token: data.token, isAuthenticated: true });
                         localStorage.setItem('token', data.token);
-                        return true;
+                        return { success: true };
                     } else {
                         const error = await response.json();
+                        setStore({ error: error.msg });
                         console.error("Error en el inicio de sesión:", error);
-                        return false;
+                        return {success: false, error: error.msg};
                     }
                 } catch (error) {
                     console.error("Error en el inicio de sesión:", error);
-                    return false;
+                    return {success: false, error: error.msg};
                 }
             },
 
@@ -70,23 +74,23 @@ const getState = ({ getStore, getActions, setStore }) => {
 
                     if (response.ok) {
                         const data = await response.json();
-                        setStore({ user: data.user, isAuthenticated: true });
-                        return true;
+                        setStore({ user: data, isAuthenticated: true });
+                        return {success: true};
                     } else {
                         setStore({ isAuthenticated: false });
-                        return false;
+                        return {success: false, error: error.msg};
                     }
                 } catch (error) {
                     console.error("Error en la validación del token:", error);
                     setStore({ isAuthenticated: false });
-                    return false;
+                    return {success: false, error: error.msg};
                 }
             },
 
             logOut: () => {
                 localStorage.removeItem("token");
                 setStore({ token: null, user: null, isAuthenticated: false });
-                return true;
+                return { success: true };
             },
 
             getMessage: async () => {
