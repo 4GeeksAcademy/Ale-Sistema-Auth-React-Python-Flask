@@ -2,7 +2,7 @@ const getState = ({ getStore, getActions, setStore }) => {
     return {
         store: {
             token: localStorage.getItem('token') || null, 
-            user: null,
+            user: '',
             message: null,
             isAuthenticated: !!localStorage.getItem('token'),
         },
@@ -33,7 +33,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
             
-
             login: async (email, password) => {
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/login`, {
@@ -43,24 +42,24 @@ const getState = ({ getStore, getActions, setStore }) => {
                         },
                         body: JSON.stringify({ email, password }),
                     });
-
+            
                     if (response.ok) {
                         const data = await response.json();
-                        setStore({user: data.user, token: data.token, isAuthenticated: true });
+                        setStore({ user: data.user, token: data.token, isAuthenticated: true, message: null });
                         localStorage.setItem('token', data.token);
                         return { success: true };
                     } else {
                         const error = await response.json();
-                        setStore({ error: error.msg });
+                        setStore({ message: error.msg });
                         console.error("Error en el inicio de sesión:", error);
-                        return {success: false, error: error.msg};
+                        return { success: false, error: error.msg };
                     }
                 } catch (error) {
                     console.error("Error en el inicio de sesión:", error);
-                    return {success: false};
+                    return { success: false, error: "Error de red o servidor" };
                 }
             },
-
+            
             checkToken: async (token) => {
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/token`, {

@@ -16,7 +16,7 @@ export const Navbar = () => {
 			<div className="container d-flex justify-content-between align-items-center">
 				<Link to="/">
 					<span className="navbar-brand mb-0 h1">
-						{store.isAuthenticated ? `Welcome user number ${store.user}`: "Registrate gratis!"}
+						{store.isAuthenticated ? `Welcome user number ${store.user.id}`: "Registrate gratis!"}
 					</span>
 				</Link>
 				<div className="d-flex">

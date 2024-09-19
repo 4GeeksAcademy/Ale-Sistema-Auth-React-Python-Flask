@@ -39,14 +39,6 @@ export const Private = () => {
         navigate('/login');
     }
 
-    if (!isAuthenticated) {
-        return (
-            <div className="d-flex justify-content-center align-items-center min-vh-100">
-                <h1 className="display-4">Cargando...</h1>
-            </div>
-        );
-    }
-
     return (
         <div className="d-flex flex-column justify-content-center align-items-center min-vh-100 text-center">
             <h1 className="display-4">Welcome Again!</h1>

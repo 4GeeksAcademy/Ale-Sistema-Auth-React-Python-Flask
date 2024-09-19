@@ -7,13 +7,14 @@ export const SignUp = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);  // Estado para el mensaje de éxito
     const navigate = useNavigate();
 
     useEffect(() => {
         if (store.error) {
             setError(store.error);
-        }else{
-            setError(null)
+        } else {
+            setError(null);
         }
         return () => setError(null);
     }, [store.error]);
@@ -25,10 +26,11 @@ export const SignUp = () => {
         const result = await actions.Signup({ email, password });
 
         if (result.success) {
-            console.log('result.succes----> ', result.success)
-            navigate("/login");
+            setSuccessMessage("Te has registrado correctamente");
+            setTimeout(() => {
+                navigate("/login");
+            }, 1500);
         } else {
-            console.log('error-singup---->', result.msg)
             setError(result.error);
         }
     };
@@ -39,6 +41,7 @@ export const SignUp = () => {
                 <div className="col-md-6">
                     <div className="card shadow">
                         <div className="card-body">
+                        {successMessage && <p className="alert alert-success text-success text-center">{successMessage}</p>}
                             <h2 className="card-title text-center mb-4">Registro</h2>
                             <form onSubmit={handleSubmit}>
                                 <div className="form-group mb-3">
@@ -69,7 +72,7 @@ export const SignUp = () => {
                                         required
                                     />
                                 </div>
-                                {error && <p className="text-danger">{error}</p>}
+                                {error && <p className="text-danger text-center">{error}</p>}
                                 <div className="d-grid">
                                     <button type="submit" className="btn btn-primary">
                                         Registrarse
@@ -83,3 +86,4 @@ export const SignUp = () => {
         </div>
     );
 };
+

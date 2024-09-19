@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/home.css";
 
 export const Login = () => {
-    const {store, actions } = useContext(Context);
+    const { store, actions } = useContext(Context);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
@@ -13,22 +13,23 @@ export const Login = () => {
     useEffect(() => {
         if (store.error) {
             setError(store.error);
-        }else{
-            setError(null)
+        } else {
+            setError(null);
         }
+        
         return () => setError(null);
     }, [store.error]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError(null)
+        setError(null);
 
-        const response = await actions.login(email, password);
+        const result = await actions.login(email, password);
 
-        if (response.success) {
+        if (result.success) {
             navigate("/private");
         } else {
-            setError(response.msg);
+            setError(result.error);
         }
     };
 
