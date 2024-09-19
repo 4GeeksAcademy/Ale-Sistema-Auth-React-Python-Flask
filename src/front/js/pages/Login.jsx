@@ -1,18 +1,27 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Context } from "../store/appContext";
 import { useNavigate } from "react-router-dom";
 import "../../styles/home.css";
 
 export const Login = () => {
-    const { actions } = useContext(Context);
+    const {store, actions } = useContext(Context);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (store.error) {
+            setError(store.error);
+        }else{
+            setError(null)
+        }
+        return () => setError(null);
+    }, [store.error]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError(null);
+        setError(null)
 
         const response = await actions.login(email, password);
 

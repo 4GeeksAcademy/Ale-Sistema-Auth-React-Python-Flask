@@ -49,7 +49,7 @@ export const Private = () => {
 
     return (
         <div className="d-flex flex-column justify-content-center align-items-center min-vh-100 text-center">
-            <h1 className="display-4">Private page</h1>
+            <h1 className="display-4">Welcome Again!</h1>
             <img src={rigoImageUrl} alt="Demo" className="img-fluid" />
             <hr />
             <Link to="/">

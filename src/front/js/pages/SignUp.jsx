@@ -18,19 +18,18 @@ export const SignUp = () => {
         return () => setError(null);
     }, [store.error]);
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
 
         const result = await actions.Signup({ email, password });
 
-        console.log("Resultado del registro:", result);
-
         if (result.success) {
+            console.log('result.succes----> ', result.success)
             navigate("/login");
         } else {
-            setError(result.msg);
+            console.log('error-singup---->', result.msg)
+            setError(result.error);
         }
     };
 

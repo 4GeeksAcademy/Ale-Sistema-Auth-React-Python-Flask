@@ -5,7 +5,6 @@ const getState = ({ getStore, getActions, setStore }) => {
             user: null,
             message: null,
             isAuthenticated: !!localStorage.getItem('token'),
-            error: null  
         },
         actions: {
             Signup: async (formData) => {
@@ -17,23 +16,23 @@ const getState = ({ getStore, getActions, setStore }) => {
                         },
                         body: JSON.stringify(formData),
                     });
-
+            
                     if (response.ok) {
                         const data = await response.json();
-                        setStore({ token: data.token, isAuthenticated: true, error: null });
+                        setStore({ token: data.token });
                         localStorage.setItem('token', data.token);
-                        console.log('esta es la data ---> ', data)
                         return { success: true };
                     } else {
                         const error = await response.json();
-                        setStore({ error: error.msg });
                         console.error("Error en el registro:", error);
-                        return {success: false, error: error.msg};
+                        return { success: false, error: error.msg || "Error desconocido" };
                     }
                 } catch (error) {
                     console.error('Error en el registro:', error);
+                    return { success: false, error: "Error de red o servidor" };
                 }
             },
+            
 
             login: async (email, password) => {
                 try {
@@ -58,7 +57,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     }
                 } catch (error) {
                     console.error("Error en el inicio de sesión:", error);
-                    return {success: false, error: error.msg};
+                    return {success: false};
                 }
             },
 

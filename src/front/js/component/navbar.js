@@ -10,7 +10,7 @@ export const Navbar = () => {
 		await actions.logOut();
 		navigate('/login');
 	};
-	console.log("user en el store", store.user);
+
 	return (
 		<nav className="navbar navbar-light bg-light">
 			<div className="container d-flex justify-content-between align-items-center">
