@@ -1,54 +1,106 @@
 const getState = ({ getStore, getActions, setStore }) => {
-	return {
-		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
-		},
-		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
+    return {
+        store: {
+            token: localStorage.getItem('token') || null, 
+            user: null,
+            message: null,
+            isAuthenticated: !!localStorage.getItem('token') // true si hay un token
+        },
+        actions: {
+            Signup: async (formData) => {
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/signup`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData),
+                    });
 
-			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
-				}
-			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+                    if (response.ok) {
+                        const data = await response.json();
+                        setStore({ token: data.token, isAuthenticated: true });
+                        localStorage.setItem('token', data.token);
+                        return data;
+                    } else {
+                        const error = await response.json();
+                        console.error("Error en el registro:", error);
+                        return error;
+                    }
+                } catch (error) {
+                    console.error('Error en el registro:', error);
+                }
+            },
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+            login: async (email, password) => {
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
-		}
-	};
+                    if (response.ok) {
+                        const data = await response.json();
+                        setStore({ token: data.token, isAuthenticated: true });
+                        localStorage.setItem('token', data.token);
+                        return true;
+                    } else {
+                        const error = await response.json();
+                        console.error("Error en el inicio de sesión:", error);
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error en el inicio de sesión:", error);
+                    return false;
+                }
+            },
+
+            checkToken: async (token) => {
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/token`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        setStore({ user: data.user, isAuthenticated: true });
+                        return true;
+                    } else {
+                        setStore({ isAuthenticated: false });
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error en la validación del token:", error);
+                    setStore({ isAuthenticated: false });
+                    return false;
+                }
+            },
+
+            logOut: () => {
+                localStorage.removeItem("token");
+                setStore({ token: null, user: null, isAuthenticated: false });
+                return true;
+            },
+
+            getMessage: async () => {
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/hello`);
+                    const data = await response.json();
+                    setStore({ message: data.message });
+                    return data;
+                } catch (error) {
+                    console.log("Error al obtener el mensaje del backend", error);
+                }
+            }
+        }
+    };
 };
 
 export default getState;
